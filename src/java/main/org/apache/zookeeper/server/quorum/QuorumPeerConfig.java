@@ -118,11 +118,12 @@ public class QuorumPeerConfig {
         LOG.info("Reading configuration from: " + path);
        
         try {
+        	// 初始化File的时候顺便根据配置打日志
             File configFile = (new VerifyingFileFactory.Builder(LOG)
                 .warnForRelativePath()
                 .failForNonExistingPath()
                 .build()).create(path);
-                
+            // 根据文件路径，加载 properties
             Properties cfg = new Properties();
             FileInputStream in = new FileInputStream(configFile);
             try {
@@ -131,7 +132,7 @@ public class QuorumPeerConfig {
             } finally {
                 in.close();
             }
-            
+            // 配置解析
             parseProperties(cfg);
         } catch (IOException e) {
             throw new ConfigException("Error processing " + path, e);
@@ -218,6 +219,7 @@ public class QuorumPeerConfig {
      */
     public void parseProperties(Properties zkProp)
     throws IOException, ConfigException {
+    	// 一个 zookeeper 实例既是服务器，也是客户端，客户端是其他服务器的客户端
         int clientPort = 0;
         int secureClientPort = 0;
         String clientPortAddress = null;

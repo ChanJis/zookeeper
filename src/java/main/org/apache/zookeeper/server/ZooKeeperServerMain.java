@@ -54,7 +54,7 @@ public class ZooKeeperServerMain {
     private AdminServer adminServer;
 
     /*
-     * Start up the ZooKeeper server.
+     * Start up the ZooKeeper server. 启动 zookeeper 服务器
      *
      * @param args the configfile or the port datadir [ticktime]
      */
@@ -102,7 +102,7 @@ public class ZooKeeperServerMain {
         } else {
             config.parse(args);
         }
-
+        
         runFromConfig(config);
     }
 
