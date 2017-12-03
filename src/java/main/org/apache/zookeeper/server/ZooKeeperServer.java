@@ -102,6 +102,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
     protected RequestProcessor firstProcessor;
     protected volatile State state = State.INITIAL;
 
+    // zookeeper 服务器状态，<初始化，运行时，关闭，错误>
     protected enum State {
         INITIAL, RUNNING, SHUTDOWN, ERROR
     }

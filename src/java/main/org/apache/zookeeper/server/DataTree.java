@@ -75,6 +75,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The tree maintains two parallel data structures: a hashtable that maps from
  * full paths to DataNodes and a tree of DataNodes. All accesses to a path is
  * through the hashtable. The tree is traversed only when serializing to disk.
+ * 整个目录树结构
  */
 public class DataTree {
     private static final Logger LOG = LoggerFactory.getLogger(DataTree.class);
@@ -82,30 +83,38 @@ public class DataTree {
     /**
      * This hashtable provides a fast lookup to the datanodes. The tree is the
      * source of truth and is where all the locking occurs
+     * 存放全部结点的容器
      */
     private final ConcurrentHashMap<String, DataNode> nodes =
         new ConcurrentHashMap<String, DataNode>();
 
+    //data 监听管理器
     private final WatchManager dataWatches = new WatchManager();
 
+    //子节点 监听管理器
     private final WatchManager childWatches = new WatchManager();
 
     /** the root of zookeeper tree */
+    //根节点
     private static final String rootZookeeper = "/";
 
     /** the zookeeper nodes that acts as the management and status node **/
+    // 作为管理和状态结点
     private static final String procZookeeper = Quotas.procZookeeper;
 
     /** this will be the string thats stored as a child of root */
+    //存储根节点的子节点的字符串
     private static final String procChildZookeeper = procZookeeper.substring(1);
 
     /**
      * the zookeeper quota node that acts as the quota management node for
      * zookeeper
      */
+    // zookeeper 的配额管理结点
     private static final String quotaZookeeper = Quotas.quotaZookeeper;
 
     /** this will be the string thats stored as a child of /zookeeper */
+    
     private static final String quotaChildZookeeper = quotaZookeeper
             .substring(procZookeeper.length() + 1);
 
@@ -116,28 +125,33 @@ public class DataTree {
     private static final String configZookeeper = ZooDefs.CONFIG_NODE;
 
     /** this will be the string thats stored as a child of /zookeeper */
+    //存储ZooKeeper节点的子节点字符串
     private static final String configChildZookeeper = configZookeeper
             .substring(procZookeeper.length() + 1);
 
     /**
      * the path trie that keeps track fo the quota nodes in this datatree
      */
+    // path trie跟踪在DataTree中的quota节点
     private final PathTrie pTrie = new PathTrie();
 
     /**
      * This hashtable lists the paths of the ephemeral nodes of a session.
+     * 会话的临时结点路径的存储地
      */
     private final Map<Long, HashSet<String>> ephemerals =
         new ConcurrentHashMap<Long, HashSet<String>>();
 
     /**
      * This set contains the paths of all container nodes
+     * 全部 container 结点的集合
      */
     private final Set<String> containers =
             Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     /**
      * This set contains the paths of all ttl nodes
+     * ttl 结点的集合
      */
     private final Set<String> ttls =
             Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());

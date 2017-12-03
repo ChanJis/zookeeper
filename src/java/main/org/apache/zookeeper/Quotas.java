@@ -22,25 +22,30 @@ package org.apache.zookeeper;
  * this class manages quotas
  * and has many other utils
  * for quota
+ * 限额管理类
  */
 public class Quotas {
 
     /** the zookeeper nodes that acts as the management and status node **/
+	//用来管理和状态的zookeeper 结点路径
     public static final String procZookeeper = "/zookeeper";
 
     /** the zookeeper quota node that acts as the quota
      * management node for zookeeper */
+    // zookeeper 的限额管理结点
     public static final String quotaZookeeper = "/zookeeper/quota";
 
     /**
      * the limit node that has the limit of
      * a subtree
+     * 
      */
     public static final String limitNode = "zookeeper_limits";
 
     /**
      * the stat node that monitors the limit of
      * a subtree.
+     * 用于监视字数的限制值的 元数据结点
      */
     public static final String statNode = "zookeeper_stats";
 

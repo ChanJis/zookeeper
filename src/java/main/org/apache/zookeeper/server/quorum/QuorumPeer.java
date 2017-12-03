@@ -366,7 +366,15 @@ public class QuorumPeer extends ZooKeeperThread implements QuorumStats.Provider 
         }
     }
 
-
+    /**
+     * LOOKING:当前 Server 不知道 leader 是谁，正在搜寻
+     * FOLLOWING:leader 已经选举出来了，当前 server 与 leader 正在同步
+     * LEADING:当前 server 为 leader
+     * OBSERVING:观察者
+     * 
+     * @author chan
+     *
+     */
     public enum ServerState {
         LOOKING, FOLLOWING, LEADING, OBSERVING;
     }
@@ -378,7 +386,11 @@ public class QuorumPeer extends ZooKeeperThread implements QuorumStats.Provider 
      *
      * We need this distinction to decide which ServerState to move to when
      * conditions change (e.g. which state to become after LOOKING).
+     * 学习者类型
+     * PARTICIPANT:参与者
+     * OBSERVER:观察者
      */
+    
     public enum LearnerType {
         PARTICIPANT, OBSERVER;
     }
