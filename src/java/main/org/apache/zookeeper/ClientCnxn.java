@@ -94,7 +94,8 @@ import org.slf4j.MDC;
  * This class manages the socket i/o for the client. ClientCnxn maintains a list
  * of available servers to connect to and "transparently" switches servers it is
  * connected to as needed.
- *
+ * 用于管理客户端 socket i/o 的类，该类持有可连接服务器的列表，如有必要时（如连接的服务器故障），会
+ * 透明化的切换服务器
  */
 public class ClientCnxn {
     private static final Logger LOG = LoggerFactory.getLogger(ClientCnxn.class);
@@ -106,9 +107,12 @@ public class ClientCnxn {
      * re-establishement across multiple SetWatches calls. This constant
      * controls the size of each call. It is set to 128kB to be conservative
      * with respect to the server's 1MB default for jute.maxBuffer.
+     * 
+     * 一个会话的可使用的最大监视器数量
      */
     private static final int SET_WATCHES_MAX_LENGTH = 128 * 1024;
 
+    //验证数据
     static class AuthData {
         AuthData(String scheme, byte data[]) {
             this.scheme = scheme;
@@ -120,18 +124,22 @@ public class ClientCnxn {
         byte data[];
     }
 
+    // 线程安全的结合，每次写的时候都要copy一份，然后再副本中进行更新操作
     private final CopyOnWriteArraySet<AuthData> authInfo = new CopyOnWriteArraySet<AuthData>();
 
     /**
      * These are the packets that have been sent and are waiting for a response.
+     * 已经发送和准备响应的包
      */
     private final LinkedList<Packet> pendingQueue = new LinkedList<Packet>();
 
     /**
      * These are the packets that need to be sent.
+     * 需要被发送的包
      */
     private final LinkedBlockingDeque<Packet> outgoingQueue = new LinkedBlockingDeque<Packet>();
 
+    //连接超时时间
     private int connectTimeout;
 
     /**
@@ -139,19 +147,26 @@ public class ClientCnxn {
      * "real" timeout, not the timeout request by the client (which may have
      * been increased/decreased by the server which applies bounds to this
      * value.
+     * 客户端和服务协商的超时时间，单位是毫秒，这个是正式的超时时间，不是客户端请求的超时时间
      */
     private volatile int negotiatedSessionTimeout;
 
+    // 真实的超时时间
     private int readTimeout;
 
+    // 会话的超时时间
     private final int sessionTimeout;
 
+    // zookeeper 客户端类
     private final ZooKeeper zooKeeper;
 
+    // 客户端监听器管理者
     private final ClientWatchManager watcher;
 
+    // 会话 id
     private long sessionId;
 
+    // 会话的秘钥（最大为16字节）
     private byte sessionPasswd[] = new byte[16];
 
     /**
@@ -159,13 +174,17 @@ public class ClientCnxn {
      * is sent, besides other data, during session creation handshake. If the
      * server on the other side of the wire is partitioned it'll accept
      * read-only clients only.
+     * 如果为 true,会进入只读模式，在会话创建握手期间，会发送这个字段
      */
     private boolean readOnly;
 
+    //根目录路径
     final String chrootPath;
 
+    // 发送线程 ？？
     final SendThread sendThread;
 
+    // 事件线程 ？？
     final EventThread eventThread;
 
     /**
@@ -173,11 +192,13 @@ public class ClientCnxn {
      * don't attempt to re-connect to the server if in the middle of closing the
      * connection (client sends session disconnect to server as part of close
      * operation)
+     * 使用 volatile 修饰，保证可见性，不保证原子性（也不需要保证原子性）
      */
     private volatile boolean closing = false;
     
     /**
      * A set of ZooKeeper hosts this client could connect to.
+     * 客户端可连接的服务器主机 hosts
      */
     private final HostProvider hostProvider;
 
@@ -193,6 +214,9 @@ public class ClientCnxn {
      * <p>
      * If this field is false (which implies we haven't seen r/w server before)
      * then non-zero sessionId is fake, otherwise it is valid.
+     * 
+     * 当第一次连接服务器时，该值为true
+     * 
      */
     volatile boolean seenRwServerBefore = false;
 
